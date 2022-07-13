@@ -7,10 +7,12 @@ import com.ecommerce.demo.repositories.UserRepository;
 import com.ecommerce.demo.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,12 +24,18 @@ import java.util.List;
 public class UserServiceIplm implements UserService, UserDetailsService {
      private final UserRepository userRepository;
      private final RoleRepository   roleRepository;
+     private final PasswordEncoder passwordEncoder;
 
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        log.info("test o service");
         User user= userRepository.findByUsername(username);
+//        List<Role> temp = new ArrayList<Role>();
+//        temp.add(new Role(1,"ADMIN"));
+//        temp.add(new Role(2,"USER"));
         if(user==null){
+
             log.error("user not found!");
             throw new UsernameNotFoundException("User not found!");
         }
@@ -43,6 +51,7 @@ public class UserServiceIplm implements UserService, UserDetailsService {
     @Override
     public User saveUser(User user) {
         log.info("saving new user {} to database",user.getName());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
 
